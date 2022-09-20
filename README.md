@@ -4,7 +4,6 @@ This repository contains the resources/materials for the [Data Analysis Club (Fa
 
 <br/>
 
-***
 
 ## Session Materials
 
