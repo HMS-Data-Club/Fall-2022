@@ -27,3 +27,12 @@ All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm 
 | 5 | 11-17-22 | TBA | TBA |
 | 6 | 12-01-22 | TBA | TBA |
 | 7 | 12-15-22 | TBA | TBA |
+
+<br/>
+
+## Resources
+
+For guide and policies related to Data Club, refer to the [Resource Repository](https://github.com/HMS-Data-Club/Resources).
+
+
+
