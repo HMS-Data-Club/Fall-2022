@@ -1,6 +1,6 @@
 # Data Analysis Club (Fall 2022)
 
-This repository contains the resources/materials for the [Data Analysis Club (Fall 2022)](https://computationalbiomed.hms.harvard.edu/education/data-analysis-club/). 
+This repository contains the materials/resources for the [Data Analysis Club (Fall 2022)](https://computationalbiomed.hms.harvard.edu/education/data-analysis-club/). It is organized by [sessions](#session-materials)  
 
 
 ## About Data Club
