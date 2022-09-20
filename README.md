@@ -2,6 +2,7 @@
 
 This repository contains the materials/resources for the [Data Analysis Club (Fall 2022)](https://computationalbiomed.hms.harvard.edu/education/data-analysis-club/). It is organized by [sessions](#session-materials)  
 
+<br/>
 
 ## About Data Club
 
@@ -13,6 +14,7 @@ The Data Analysis Club is a community hosted by the Center for Computational Bio
 
 All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm – 5:30pm.
 
+<br/>
 
 ## Session Materials
 
