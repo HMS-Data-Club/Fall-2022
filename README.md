@@ -20,7 +20,7 @@ All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm 
 
 |Session| Date     | Topic | Link          |
 |:-----:|:--------:|:------|:-------------:|
-| 1 | 09-22-22 | NYTimes COVID data exploration and visualization | TBA |
+| 1 | 09-22-22 | NYTimes COVID data exploration and visualization | [TBA](Session-1) |
 | 2 | 10-06-22 | TBA | TBA |
 | 3 | 10-20-22 | TBA | TBA |
 | 4 | 11-03-22 | TBA | TBA |
