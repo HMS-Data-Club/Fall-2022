@@ -11,6 +11,8 @@ The Data Analysis Club is a community hosted by the Center for Computational Bio
 * Data visualization and exploratory analysis
 * Analyzing high-throughput data
 
+All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm – 5:30pm.
+
 
 ## Session Materials
 
