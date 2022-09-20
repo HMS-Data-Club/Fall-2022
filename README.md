@@ -2,7 +2,14 @@
 
 This repository contains the resources/materials for the [Data Analysis Club (Fall 2022)](https://computationalbiomed.hms.harvard.edu/education/data-analysis-club/). 
 
-<br/>
+
+## About Data Club
+
+The Data Analysis Club is a community hosted by the Center for Computational Biomedicine with support from the Curriculum Fellows. In Fall 2022, we will be focusing on hands-on data analysis using R. Each session, either the instructor(s) or another group member will introduce a data set and a research question. As a group, we will work through the workflow to show how we can use data to answer a question, test a hypothesis, or reproduce a result. We will also have time each session to troubleshoot projects and share computational expertise. Members will have a say in the specific topics and data techniques chosen for each session, but expect topics such as:
+
+* Project and workflow management
+* Data visualization and exploratory analysis
+* Analyzing high-throughput data
 
 
 ## Session Materials
