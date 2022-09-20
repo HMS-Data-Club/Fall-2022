@@ -1,6 +1,6 @@
 # Data Club - Session 1
 
-This session will focus on exploratory analysis and data visualization. We will work together to pull datasets related to the COVID-19 pandemic from GitHub, examine it, and create useful visualizations.
+This session will focus on exploratory analysis and data visualization. We will work together to pull datasets related to the COVID-19 pandemic from the [New York Times GitHub](https://github.com/nytimes/covid-19-data), examine the data, and create useful visualizations.
 
 
 Specifically, the goals of this session are:
@@ -19,3 +19,10 @@ Specifically, the goals of this session are:
 | code    | RMarkdown file for the session | 
 | data    | data for the analysis |
 | graphs  | graphs generated from the analysis |
+
+
+<br/>
+
+## References
+
+The New York Times. (2021). Coronavirus (Covid-19) Data in the United States. Retrieved from https://github.com/nytimes/covid-19-data.
