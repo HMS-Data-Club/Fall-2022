@@ -1,12 +1,15 @@
 ---
-title: "Data Analysis Club: Session 1"
-subtitle: "New York Times COVID data"
-author:
-output: 
+title: 'Data Analysis Club: Session 1'
+author: 
+subtitle: New York Times COVID data
+output:
+  html_document:
+    toc: yes
+    df_print: paged
   html_notebook:
-    toc: true
-    toc_float: true
-editor_options: 
+    toc: yes
+    toc_float: yes
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -24,11 +27,9 @@ Note you may need to install the `rmarkdown` package, if you have not done. Use 
 This is an R Notebook file (see YAML header: `output: html_notebook`). An R Notebook is an R Markdown document with chunks that can be executed independently and interactively, with output visible immediately beneath the input or in the console. This feature of the R Notebook makes it a good choice while creating an R Markdown document. When you Save this R Markdown document, an html file should be generated automatically. When you are ready to publish the document, you can render it to a publication format (e.g., HTML, Word, pdf) with the Knit button. For more about R Notebook, see this book by [Xie and colleagues](https://bookdown.org/yihui/rmarkdown/notebook.html)
 
 
-```{r example, eval=FALSE}
+```{r example}
 # This is an example of an R code chunk.
 # For this session, please only edit code within R code chunks like this, focusing on the missing pieces shown with "___".
-
-# To prevent code with missing pieces from accidentally running and generating error messages, "eval=FALSE" has been added to the display option of most of the code chunks below. When you are happy with a code chunk, remove "eval=FALSE". 
 ```
 
 <br/>
@@ -93,11 +94,11 @@ In this part, we will recreate the New York Time ["New reported cases" graph](ht
 
 We can use `read_csv()` to import data directly from GitHub. 
 
-```{r import us data, eval=FALSE}
+```{r import us data}
 # import data directly from GitHub
 US_data <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv") 
 
-# inspect data
+# inspect data briefly
 str(US_data)
 summary(US_data)
 ```
@@ -114,11 +115,11 @@ The GitHub dataset we imported in Step 2a shows the daily number of cases and de
 2. the rolling 7-day average
     + hint: `zoo::rollmeanr()`
 
-```{r wrangle us data, eval=FALSE}
+```{r wrangle us data}
 # calculate daily new cases and rolling 7-day average
 US_daily_graph <- US_data %>%
-  mutate(cases.daily = ___,
-         cases.daily.ave = ___) 
+  mutate(cases.daily = cases - lag(cases),
+         cases.daily.ave = rollmeanr(cases.daily, 7, fill = NA)) 
 ```
 <br/>
 
@@ -132,24 +133,25 @@ New York Time ["New reported cases" graph](https://www.nytimes.com/interactive/2
 
 We will use ggplot to recreate this graph.
 
-```{r graph us data, warning = FALSE, fig.width = 7, fig.height = 4, eval=FALSE}
+```{r graph us data, warning = FALSE, fig.width = 7, fig.height = 4}
 # graph 7-day average of new cases vs date
 ggplot(data = US_daily_graph,
-       mapping = aes(x = ___, y = ___)) +
-  ___ +     # plot line
-  ___ +     # add shading underneath the curve
-  scale_x_date(___) +     # adjust x-axis label
+       mapping = aes(x = date, y = cases.daily.ave)) +
+  geom_line(color = "red") +
+  geom_area(fill = "#F8DDDD") +
+  scale_x_date(breaks = seq(mdy("02-01-20"), mdy("08-01-22"), by = "5 months"),  
+               date_labels = "%b %Y") +
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
   theme_bw() +
-  theme(panel.grid.minor = ___, 
-        panel.grid.major.x = ___,
-        panel.grid.major.y = ___) +            # adjust how the graph looks
-  labs(x = ___, y = ___,
-       title = ___,
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.2, color = "grey95")) +
+  labs(x = "Date", y = "7-day average of new cases",
+       title = "New reported COVID-19 cases in the US",
        caption = "Data source: New York Times. Retrieved from GitHub.")
 
 # export graph
-ggsave(filename = "US_New reported cases.png", path = here("Session-1", "graphs"),
+ggsave(filename = "US_NewReportedCases.png", path = here("Session-1", "graphs"),
        width = 7, height = 4, units = "in", bg = "white")
 ```
 
@@ -428,7 +430,7 @@ Congrats on reaching the last step! We hope this session has been interesting & 
 
 Adding a date stamp and exporting the session info are great practices to ensure the reproducibilty of your code. The next code chunk helps you do both.
 
-```{r wrap up}
+```{r wrap up, eval=FALSE}
 # Add date stamp
 lubridate::stamp("Data updated December 31, 1979")(lubridate::now())
 
@@ -455,7 +457,7 @@ Reruning everything at the very end also helps ensure that your code is reproduc
 
 Time to celebrate with some Mario tunes!
 
-```{r beep}
+```{r beep, eval=FALSE}
 # B/c Mario is awesome
 library(beepr)
 beep(sound = 8)
