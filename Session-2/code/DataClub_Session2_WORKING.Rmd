@@ -1,0 +1,466 @@
+---
+title: 'Data Analysis Club: Session 1'
+author: 
+subtitle: New York Times COVID data
+output:
+  html_document:
+    toc: yes
+    df_print: paged
+  html_notebook:
+    toc: yes
+    toc_float: yes
+editor_options:
+  chunk_output_type: inline
+---
+
+
+<br/>
+<br/>
+
+
+## R Markdown file 
+
+R Markdown weaves together narrative text and code (see code chunk below), improving the readability/reproducibility of your code. For more details on using R Markdown refer to [this quick tour](https://rmarkdown.rstudio.com/authoring_quick_tour.html) or [this website](http://rmarkdown.rstudio.com). For syntax in R Markdown refer to [this cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).
+
+Note you may need to install the `rmarkdown` package, if you have not done. Use code: `install.packages("rmarkdown")`
+
+This is an R Notebook file (see YAML header: `output: html_notebook`). An R Notebook is an R Markdown document with chunks that can be executed independently and interactively, with output visible immediately beneath the input or in the console. This feature of the R Notebook makes it a good choice while creating an R Markdown document. When you Save this R Markdown document, an html file should be generated automatically. When you are ready to publish the document, you can render it to a publication format (e.g., HTML, Word, pdf) with the Knit button. For more about R Notebook, see this book by [Xie and colleagues](https://bookdown.org/yihui/rmarkdown/notebook.html)
+
+
+```{r example}
+# This is an example of an R code chunk.
+# For this session, please only edit code within R code chunks like this, focusing on the missing pieces shown with "___".
+```
+
+<br/>
+<br/>
+<br/>
+
+
+
+## Step 1. Prepare for coding
+
+### Step 1a. Load relevant packages
+
+For this session, we will mostly rely on the following packages:
+
+* __tidyverse__ for importing and wrangling data
+* __ggplot2__ for graphing data
+* __here__ for referencing files
+* __zoo__ for calculating rolling averages
+* __lubridate__ for working with dates
+
+Make sure these packages are installed. If not, use the function `install.packages()` to download and install relevant packages.
+
+__Note, additional packages will be required for specific sections. We will introduce and load them when needed.__
+
+```{r packages, warning = FALSE, message=FALSE}
+# load packages
+library(tidyverse)
+library(ggplot2)
+library(here)
+library(zoo)
+library(lubridate)
+```
+<br/>
+
+
+### Step 1b. Inspect working directory
+
+It's always a good practice to inspect our working directory. This can be done using  `getwd()`. We can also manual set our working directory using `setwd()`. 
+
+`here::here()` is a nifty function that simplifies writing file path. It also pairs well with R Project. We will use it repeatedly in this session.
+
+```{r working directory}
+# inspect working directory
+getwd()
+
+# inspect here::here()
+here::here() 
+```
+
+<br/>
+<br/>
+<br/>
+
+
+
+## Step 2. Create a line plot
+
+In this part, we will recreate the New York Time ["New reported cases" graph](https://www.nytimes.com/interactive/2021/us/covid-cases.html)
+
+
+### Step 2a. Import data from GitHub
+
+We can use `read_csv()` to import data directly from GitHub. 
+
+```{r import us data}
+# import data directly from GitHub
+US_data <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv") 
+
+# inspect data briefly
+str(US_data)
+summary(US_data)
+```
+<br/>
+
+
+### Step 2b. Wrangle data
+
+The GitHub dataset we imported in Step 2a shows the daily number of cases and deaths nationwide. We will need to calculate:
+
+1. the number of __new__ cases for each day
+    + hint: `dplyr::lag()`
+    
+2. the rolling 7-day average
+    + hint: `zoo::rollmeanr()`
+
+```{r wrangle us data}
+# calculate daily new cases and rolling 7-day average
+US_daily_graph <- US_data %>%
+  mutate(cases.daily = cases - lag(cases),
+         cases.daily.ave = rollmeanr(cases.daily, 7, fill = NA)) 
+```
+<br/>
+
+
+### Step 2c. Graph data
+
+New York Time ["New reported cases" graph](https://www.nytimes.com/interactive/2021/us/covid-cases.html) shows:
+
+* 7-day average of new cases on the y-axis
+* dates on the x-axis. 
+
+We will use ggplot to recreate this graph.
+
+```{r graph us data, warning = FALSE, fig.width = 7, fig.height = 4}
+# graph 7-day average of new cases vs date
+ggplot(data = US_daily_graph,
+       mapping = aes(x = date, y = cases.daily.ave)) +
+  geom_line(color = "red") +
+  geom_area(fill = "#F8DDDD") +
+  scale_x_date(breaks = seq(mdy("02-01-20"), mdy("08-01-22"), by = "5 months"),  
+               date_labels = "%b %Y") +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.2, color = "grey95")) +
+  labs(x = "Date", y = "7-day average of new cases",
+       title = "New reported COVID-19 cases in the US",
+       caption = "Data source: New York Times. Retrieved from GitHub.")
+
+# export graph
+ggsave(filename = "US_NewReportedCases.png", path = here("Session-1", "graphs"),
+       width = 7, height = 4, units = "in", bg = "white")
+```
+
+<br/>
+<br/>
+<br/>
+
+
+## Step 3. Create a line plot using facet wrap
+
+`facet_wrap()` and `facet_grid()` can be used to easily create multi-panel plots. In this section, we will use `facet_wrap()` to graph the rolling 7-day average of new COVID cases per 100k people for __each state__.
+
+This will require several steps:
+
+1. Import COVID data from GitHub and population data from file
+    + State COVID data posted by New York Times can be found [here](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv) 
+    + State population data can be found in "data/population-us-2020-census.csv". This dataset was accessed from [US Census Bureau](https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html). It has been pre-cleaned for you to simplify this part of the analysis.
+  
+2. Combine the 2 datasets
+    + note: New York Times COVID dataset does not contain data from the territories
+
+3. Calculate the 7-day rolling average of new cases for each state, and normalize by state population
+    + hint: `group_by()` followed `mutate()`
+
+4. Generate multi-panel graph
+    + hint: `facet_wrap()`
+
+
+```{r regular facet wrap, warning = FALSE, fig.width = 11, fig.height = 11, eval=FALSE}
+# import COVID data from GitHub
+# URL to dataset: https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv
+States_data <- read_csv(___) 
+
+# import population data from folder.
+State_population <- read_csv(file = here::here("Session-1", "data", "population-us-2020-census.csv"))
+
+# wrangle data
+State_daily_graph <- States_data %>%
+  arrange(state, date) %>%
+  left_join(State_population, by = "state") %>%
+  ___
+
+# graph data
+ggplot(___) +
+  geom_line(___) +
+  scale_x_date(___) +
+  facet_wrap(___) +         # for creating multi-panel plots
+  theme_bw() +
+  theme(___) +
+  labs(___)
+
+# export graph
+ggsave(___)
+```
+<br/>
+
+
+For fun: the geofacet package works similarly as `facet_wrap()`, except it arranges panels following a grid that mimics the original topology. For more information on geofacet, see [here](https://cran.r-project.org/web/packages/geofacet/vignettes/geofacet.html). Run the next code chunk and see what it produces :D
+
+```{r geofacet, warning = FALSE, fig.width = 14, fig.height = 8, eval=FALSE}
+# load library
+library(geofacet)
+
+# use facet_geo() instead of facet_wrap()
+ggplot(data = State_daily_graph,
+       mapping = aes(x = date, y = cases.daily.ave.density)) +
+  geom_line(color = "grey45") +
+  facet_geo(~ state) +
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  labs(title = "New reported COVID-19 cases in different states",
+       subtitle = "Average daily cases per 100,000 people",
+       caption = "Data source: New York Times. Retrieved from GitHub.")
+
+# export graph
+ggsave(filename = "State_Average daily cases per 100k people_Geo Wrap.png", 
+       path = here::here("Session-1", "graphs"),
+       width = 14, height = 8, units = "in", bg = "white")
+```
+<br/>
+<br/>
+<br/>
+
+
+## Step 4. Test a hypothesis and create an interactive plot
+
+Let's investigate the relationship between having a college/university in the county and masking rates within that county.
+
+New York Times posted a survey that was carried out in July 2020, during the 2nd peak of the pandemic. Data from this survey was used to predict mask-wearing in different counties. Data and metadata are available on the New York Times GitHub. See [here](https://github.com/nytimes/covid-19-data/tree/master/mask-use).
+
+The us-colleges-and-universities.csv file in the data folder lists Colleges, Universities, and Professional Schools within the US. This .csv file was derived from this [dataset on US Colleges and Universities](https://public.opendatasoft.com/explore/dataset/us-colleges-and-universities/table/). The us-colleges-and-universities.csv file has been simplified to spead up today's analysis.
+
+The county_fips.txt file in the data folder lists counties in the US, states they belong to, and their fips code. This was accessed from [the USDA website](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697).
+
+For the analysis, we will need to:
+
+1. Calculate the rate of encountering someone wearing a mask in each state
+    + for the purpose of this analysis, we can assume:
+        + NEVER = 0% chance of wearing a mask
+        + RARELY = 25% chance of wearing a mask
+        + SOMETIMES = 50% chance of wearing a mask
+        + FREQUENTLY = 75% chance of wearing a mask
+        + ALWAYS = 100% chance of wearing a mask
+    + Thus, the chance of encountering someone wearing a mask would be: `NEVER * 0 + RARELY * 0.25 + SOMETIMES * 0.5 + FREQUENTLY * 0.75 + ALWAYS * 1`
+        
+2. Wrangle data and combine the datasets
+
+3. Create a violin + dot plot to compare masking rates in counties with colleges/universities to those without 
+
+4. Perform t-test
+
+5. Create an interactive plot
+
+<br/>
+
+### Step 4a. Wrangle and visualize data (exploratory data analysis)
+
+```{r college mask visual, warning = FALSE, fig.width = 6, fig.height = 4, eval=FALSE}
+# import datasets
+Masks_data <- ___
+Colleges_Universities <- ___
+County_fips <- ___
+
+# calculate chance of encountering someone wearing a mask in different counties
+Masks_data_simplified <- Masks_data %>%
+  ___
+
+# calculate number of schools per county
+Colleges_Universities_summary <- Colleges_Universities %>%
+  ___ 
+
+# combine datasets and determine if county has college/university
+College_Masks <- ___ %>%
+  ___
+
+# create violin plot with dots
+ggplot(___) +
+  ___ 
+
+# save graph
+ggsave(___)
+```
+<br/>
+
+
+### Step 4b. Perform t-test
+
+We can use `t.test()` to compare the two groups. 
+
+* Hint: look at the documentation for `t.test()` to understand the assumptions made in this statistical analysis.
+
+```{r college mask stats, eval=FALSE}
+#insert your code here
+```
+<br/>
+
+__We want to note here that Step 4a and 4b are not meant to be a scientific analysis of COVID-related data.__ We are using this to process model data wrangling and statistical analysis in R. Of note,
+
+* Correlation does not equate causation. Many other factors could be influencing the two variables we looked at.
+* We made multiple assumptions during our data analysis procedure. These assumptions could all impact outcome of the analysis.
+
+<br/>
+
+
+### Step 4c. Create an interactive plot
+
+In this step, we will turn the violin/dot plot above into an interactive plot. This will require the package plotly. For more about plotly, specifically `ggplotly()` refer to this [website](https://plotly.com/ggplot2/).
+
+We can display interactive plots as part of this R Markdown file, or export it as an independent html file. We will need the package htmlwidgets to export the interactive plot.
+
+
+```{r college mask interactive plot, warning = FALSE, fig.width = 6, fig.height = 4, eval=FALSE}
+# load libraries
+library(plotly)
+library(htmlwidgets)
+
+# create ggplot
+gg_College_Masks <- ggplot(___) +
+  ___
+
+# create interactive plot
+gg_College_Masks <- plotly::ggplotly(gg_College_Masks)
+gg_College_Masks
+
+# save the interactive plot as a separate file
+htmlwidgets::saveWidget(gg_College_Masks,
+                        file = here("Session-1", "graphs", "Mask wearing_college in county_interactive.html"))
+```
+<br/>
+<br/>
+<br/>
+
+
+
+## Step 5. Create an animated map
+
+In this step, we will create an animated map showing 7-day rolling average of new cases in each state (normalized to state population). We will start by creating a _static_ map.
+
+<br/>
+
+### Step 5a. Create an static map
+
+The maps package is the great source of geospatial data in R. It's great for making some basic maps. For more on creating maps using the maps package, see this [webpage](https://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html).
+
+```{r static map, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 6, eval=FALSE}
+# load libraries
+library(maps)
+
+# pull geographical data from the maps package.
+States_Map <- map_data("state")
+
+# create a map based on geographical data using ggplot
+ggplot(data = States_Map,
+       mapping = aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = "grey25", size = 0.1, fill = NA) +
+  coord_map() +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "US map") 
+
+# combine geographical data with covid data
+# b/c once we have a dataset with geographical data with covid data, we can use the argument fill to show covid cases
+State_1day <- State_daily_graph %>% 
+  filter(date == ___) %>%              # pick a date within Jan 2022 b/c of Omicron surge
+  ___
+
+ggplot(___) +
+  ___
+
+ggsave(___)
+```
+<br/>
+
+
+### Step 5b. Create an animated graph using gganimate
+
+We will now build upon the static map and create an animated map showing 7-day rolling average of new cases in each state (normalized to state population). 
+
+The gganimate package builds upon the grammar of ggplot and provide functions for animation. For a cheatsheet of gganimate see (here)[https://ugoproto.github.io/ugo_r_doc/pdf/gganimate.pdf]
+
+We'll use the package gifski to save the animated map we generated as a gif
+
+```{r animated, echo=TRUE, results = FALSE, eval=FALSE}
+# load libraries
+library(gganimate)
+library(gifski)
+
+# create dataset, including selecting the dates you want to graph
+# to save processing time, we recommend graphing every week or every two week
+State_series <- State_daily_graph %>% 
+  filter(date %in% ___) %>%          # pick a series of dates to graph
+  ___
+
+# create animated map (hint: repeat code from last chunk)
+gg_State_Animate <- ggplot(___) +
+  ___ +
+  transition_manual(date) +
+  ___ +
+  labs(___)
+
+animate(plot = gg_State_Animate, renderer = gifski_renderer(loop = FALSE),
+        fps = 6, end_pause = 12, width = 700, height = 500)
+
+# export animated map
+anim_save(filename = "State map_animated.gif", path = here("Session-1", "graphs"))
+```
+
+<br/>
+<br/>
+<br/>
+
+
+## Step 6. Wrap up
+
+Congrats on reaching the last step! We hope this session has been interesting & informative.
+
+Adding a date stamp and exporting the session info are great practices to ensure the reproducibilty of your code. The next code chunk helps you do both.
+
+```{r wrap up, eval=FALSE}
+# Add date stamp
+lubridate::stamp("Data updated December 31, 1979")(lubridate::now())
+
+# Add session info
+# note, the [-8] omits packages installed, but not loaded for this analysis
+utils:::print.sessionInfo(sessionInfo()[-8]) 
+```
+<br/>
+
+
+Reruning everything at the very end also helps ensure that your code is reproducible. To do so: 
+
+1. Clear objects from the workspace by going to Session > Clear Workspace... This will allow you to run code in this file without interference from prior runs, thus, testing the reproducibility of your code.
+
+2. Open the "Run" dropdown manual, and click on "Run All" (upper right of Script Editor). This will run all the code in this document.
+    + Note, if the code stops running before you hear Mario tunes, this means you have an error that's preventing the code from running to completion.
+
+3. Once you hear Mario tunes, click the "Save" button (upper left of Script Editor). This should automatically generate/update an html file that you can share with a colleague.
+
+
+<br/>
+<br/>
+
+
+Time to celebrate with some Mario tunes!
+
+```{r beep, eval=FALSE}
+# B/c Mario is awesome
+library(beepr)
+beep(sound = 8)
+```
+
+

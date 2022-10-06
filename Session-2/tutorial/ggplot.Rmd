@@ -1,0 +1,74 @@
+---
+title: "Intro to ggplot"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+# Basics
+
+The ggplot2 package helps R users create data visualizations using the "Grammar of Graphics" approach. Here we will outline the basic scaffold of a ggplot to get you started with the various functions. We will use the 'iris' dataset which comes pre-loaded with all R instances.
+
+```{r}
+head(iris)
+```
+
+## The ggplot object
+
+The data to be visualised is first wrapped in a [ggplot()](https://ggplot2.tidyverse.org/reference/ggplot.html) function that will create a ggplot object.
+
+```{r}
+ggplot(iris)
+```
+
+*As you can see, the plot is empty now since nothing is defined yet*
+
+The first important argument to define is the plot "aesthetics" using the [aes()](https://ggplot2.tidyverse.org/reference/aes.html) function *inside* the ggplot function. Here we define parts of the graph that depend on data in the data frame we use. Typical arguments are the x- and y-axis.
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length))
+```
+
+*We now see that and x- and y axis has been defined (with default layout) but nothing has been plotted yet*
+
+
+## Adding geometric functions
+
+Once we have a ggplot object set-up with data and basic aesthetics, we can add specific visualizations that work best for the representation we have in mind. We do this by adding specific functions to the ggplot object using a `+` sign to chain everything together (it's similar like a pipe used in many programming languages). All geometric functions look like [geom_<name>](https://ggplot2.tidyverse.org/reference/#layers) where name is the type of visualisation. Let's start by adding points.
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) + 
+  geom_point()
+```
+
+*We can now see that points have been added for every x and y value*
+
+Various visual aspects of the geometrics can be easily changed within the geom functions. For example, we can change the color, size or shape of the points
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) + 
+  geom_point(size = 2, color = "red", shape = 3)
+```
+
+## Modifying the title and axis text
+
+The [labs()](https://ggplot2.tidyverse.org/reference/labs.html) function can be used to specify the (sub) title and axis descriptions of the plot 
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) + 
+  geom_point() +
+  labs(title = "Iris dataset exploration", x = "Petal length", y = "Sepal length")
+```
+
+## Changing the theme
+
+Every visual aspect of the plot that is not directly related to the data itself can be modified, from the color of the background to the thickness of the axis. The [theme()](https://ggplot2.tidyverse.org/reference/theme.html) function provides the option to do this, but for this intro we will stick with some preset that come with the ggplot package which can be accessed using the theme_<name> function
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) + 
+  geom_point() +
+  labs(title = "Iris dataset exploration", x = "Petal length", y = "Sepal length") +
+  theme_light()
+```
