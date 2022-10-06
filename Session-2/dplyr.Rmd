@@ -21,18 +21,19 @@ registerS3method(
 
 # Basics
 
-The [dplyr](https://dplyr.tidyverse.org/) package is used to manipulate data frames in R in a intuitive and easy way which differs from the base-R functions but has the same effect. The package is part of the [Tidyverse](https://www.tidyverse.org/), which hold a variary of packages aimed to improving data manipulation in R. TO demonstrate the basic functions of the dplyr package we will use the iris data frame, which comes pre-loaded with every R session.
+The [dplyr](https://dplyr.tidyverse.org/) package is used to manipulate data frames in R in a intuitive and easy way which differs from the base-R functions but has the same effect. The package is part of the [Tidyverse](https://www.tidyverse.org/), which hold a variety of packages aimed to improving data manipulation in R. To demonstrate the basic functions of the dplyr package we will use the iris data frame, which comes pre-loaded with every R session.
+
 ```{r}
 head(iris)
 ```
 
 ## Piping with %>% 
 
-All Tidyverse packages will load a special piping charcter `%>%` which allows us to use the output of the previous function (i.e. data frame) as input for the next. This is a very elegant way of chaining functions together, saves space and improves readability.
+All Tidyverse packages will load a special piping character `%>%` which allows us to use the output of the previous function (i.e. data frame) as input for the next. This is a very elegant way of chaining functions together, saves space and improves readability.
 
 ## select
 
-The select() function allows us to select specific columns in a dataframe we like to keep for downstream analysis. The order in which the column names are listed is the order in which they will appear in the new dataframe.
+The `select()` function allows us to select specific columns in a data frame we like to keep for downstream analysis. The order in which the column names are listed is the order in which they will appear in the new data frame.
 
 ```{r, max.print = 8}
 iris %>% select(Species, Sepal.Length, Sepal.Width)
@@ -40,7 +41,7 @@ iris %>% select(Species, Sepal.Length, Sepal.Width)
 
 ## filter
 
-The filter() functions will subset the rows of a given data frame based on user-provided logic that is run over the columns. This way we can easily filter data frames.
+The `filter()` functions will subset the rows of a given data frame based on user-provided logic that is run over the columns. This way we can easily filter data frames.
 
 ```{r}
 iris %>% filter(Sepal.Length < 5.3, Species != "setosa")
@@ -48,21 +49,23 @@ iris %>% filter(Sepal.Length < 5.3, Species != "setosa")
 
 ## mutate
 
-The mutate() function allows us to either create new columns or manipulate (mutate) existing ones.
+The `mutate()` function allows us to either create new columns or manipulate (mutate) existing ones.
 
 Creating a new column
+
 ```{r}
 iris %>% mutate(Sepal.Area = Sepal.Length * Sepal.Width)
 ```
 
 Changing an existing column
+
 ```{r}
 iris %>% mutate(Petal.Width = Petal.Width + 1)
 ```
 
 ## group_by
 
-The group_by() function groups the data in the dataframe by specific unique values in one or more columns. In itself it does not change the data, but it will affect the way downstream functions have an effect as they are now executed per group instead across the whole dataframe
+The `group_by()` function groups the data in the data frame by specific unique values in one or more columns. In itself it does not change the data, but it will affect the downstream functions, as they are now executed per group instead across the whole data frame
 
 ```{r}
 iris %>% group_by(Species) %>% 
@@ -75,7 +78,7 @@ iris %>% group_by(Species) %>%
 
 ## summarise
 
-The summarise() or summarize() function aggregates data in a data frame and collapses all rows to one using a specified summarization function like sum(), min(), max(), mean(), ... .
+The `summarise()` or `summarize()` function aggregates data in a data frame and collapses all rows to one using a specified summarization function like `sum()`, `min()`, `max()`, `mean()`, etc
 
 
 ```{r}
