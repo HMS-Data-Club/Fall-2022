@@ -115,11 +115,11 @@ The GitHub dataset we imported in Step 2a shows the daily number of cases and de
 2. the rolling 7-day average
     + hint: `zoo::rollmeanr()`
 
-```{r wrangle us data, eval=FALSE}
+```{r wrangle us data}
 # calculate daily new cases and rolling 7-day average
 US_daily_graph <- US_data %>%
-  mutate(cases.daily = ___,
-         cases.daily.ave = ___) 
+  mutate(cases.daily = cases - lag(cases),
+         cases.daily.ave = rollmeanr(cases.daily, 7, fill = NA)) 
 ```
 <br/>
 
@@ -133,24 +133,25 @@ New York Time ["New reported cases" graph](https://www.nytimes.com/interactive/2
 
 We will use ggplot to recreate this graph.
 
-```{r graph us data, warning = FALSE, fig.width = 7, fig.height = 4, eval=FALSE}
+```{r graph us data, warning = FALSE, fig.width = 7, fig.height = 4}
 # graph 7-day average of new cases vs date
 ggplot(data = US_daily_graph,
-       mapping = aes(x = ___, y = ___)) +
-  ___ +     # plot line
-  ___ +     # add shading underneath the curve
-  scale_x_date(___) +     # adjust x-axis label
+       mapping = aes(x = date, y = cases.daily.ave)) +
+  geom_line(color = "red") +
+  geom_area(fill = "#F8DDDD") +
+  scale_x_date(breaks = seq(mdy("02-01-20"), mdy("08-01-22"), by = "5 months"),  
+               date_labels = "%b %Y") +
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
   theme_bw() +
-  theme(panel.grid.minor = ___, 
-        panel.grid.major.x = ___,
-        panel.grid.major.y = ___) +            # adjust how the graph looks
-  labs(x = ___, y = ___,
-       title = ___,
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.2, color = "grey95")) +
+  labs(x = "Date", y = "7-day average of new cases",
+       title = "New reported COVID-19 cases in the US",
        caption = "Data source: New York Times. Retrieved from GitHub.")
 
 # export graph
-ggsave(filename = "US_New reported cases.png", path = here("Session-1", "graphs"),
+ggsave(filename = "US_NewReportedCases.png", path = here("Session-1", "graphs"),
        width = 7, height = 4, units = "in", bg = "white")
 ```
 
