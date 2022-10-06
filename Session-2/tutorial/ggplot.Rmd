@@ -26,7 +26,7 @@ ggplot(iris)
 
 *As you can see, the plot is empty now since nothing is defined yet*
 
-The first important argument to define is the plot "aesthetics" using the [aes()](https://ggplot2.tidyverse.org/reference/aes.html) function *inside* the ggplot function. Here we define parts of the graph that depend on data in the data frame we use. Typical arguments are the x- and y-axis.
+The first important argument to define is the plot "aesthetics" using the [aes()](https://ggplot2.tidyverse.org/reference/aes.html) function *inside* the ggplot function. Here we define parts of the graph that depend on data in the data frame we use. Typical arguments are the x- and y-axis. 
 ```{r}
 ggplot(iris, aes(x = Petal.Length, y = Sepal.Length))
 ```
@@ -52,6 +52,15 @@ ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) +
   geom_point(size = 2, color = "red", shape = 3)
 ```
 
+## Using aes() in geom_point()
+
+We can add a second `aes()` function into `geom_point` to vary the points by these properties as well. ggplot will even automatically handle categorical data for you. One note is that for geom objects with area such as barplots or boxplots, the `fill` property needs to be used to change the color of the inside of the shape, as opposed to the outline. 
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) + 
+  geom_point(aes(size = Sepal.Width, color = Species)) 
+```
+
 ## Modifying the title and axis text
 
 The [labs()](https://ggplot2.tidyverse.org/reference/labs.html) function can be used to specify the (sub) title and axis descriptions of the plot 
@@ -72,3 +81,4 @@ ggplot(iris, aes(x = Petal.Length, y = Sepal.Length)) +
   labs(title = "Iris dataset exploration", x = "Petal length", y = "Sepal length") +
   theme_light()
 ```
+
