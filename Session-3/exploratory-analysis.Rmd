@@ -1,0 +1,177 @@
+---
+title: "Phosphoproteomic Exploratory Analysis"
+output: html_document
+date: "2022-10-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, echo=FALSE}
+library(tidyverse)
+library(preprocessCore)
+library(ggfortify)
+library(ggplot2)
+library(RColorBrewer)
+library(ggVennDiagram)
+```
+
+## Data Description
+
+We are collaborating with a lab that is studying phosphorylation changes during covid infection. This dataset consists of phosphoproteomic TMT mass spec data from 2 10-plexes. We took samples at 0, 5, and 60 minutes post-infection. We also wanted to explore the specific role of 2 genes thought to be used in covid infection, RAB7A and NPC1. To do this, we included cell lines with each of these genes knocked out. 
+
+We wanted to have 2 replicates for each condition we were looking at, so we have a total of 3X2X3 or 18 different samples we want to measure. We decide to replicate wild type at 0 minutes in each 10plex for our total 20 wells accross the 2 10-plexes. 
+
+## Loading Data
+
+We're going to load in our data and define the column names we care about. While we could grab these programmatically, it's safer to explicitly define them so that we always know we're getting the data we think we're getting. 
+
+```{r load data, echo=FALSE}
+#Step 1: Load Data and get it into shape
+phos_plex2 <- read.csv("data/phospho_exp2_safe.csv")
+phos_plex3 <- read.csv("data/phospho_exp3_safe.csv")
+
+#Get the names we care about
+plex2_names <- c('WT_0Min_1',
+                     'WT_0Min_2',
+                     'X.RAB7A_0Min_1',
+                     'X.RAB7A_0Min_2',
+                     'WT_5Min_1',
+                     'WT_5Min_2',
+                     'X.RAB7A_5Min_1',
+                     'X.RAB7A_5Min_2',
+                     'X.NPC1_5Min_1',
+                     'X.NPC1_5Min_2')
+
+plex3_names <- c('WT_0Min_1',
+                     'WT_0Min_2',
+                     'X.NPC1_0Min_1',
+                     'X.NPC1_0Min_2',
+                     'WT_60Min_1',
+                     'WT_60Min_2',
+                     'X.RAB7A_60Min_1',
+                     'X.RAB7A_60Min_2',
+                     'X.NPC1_60Min_1',
+                     'X.NPC1_60Min_2')
+
+plex2_celllines <- factor(c('WT','WT','RAB7A','RAB7A','WT','WT','RAB7A','RAB7A','NPC1','NPC1'))
+plex3_celllines <- factor(c('WT','WT','NPC1','NPC1','WT','WT','RAB7A','RAB7A','NPC1','NPC1'))
+
+plex2_times <- factor(c(0,0,0,0,5,5,5,5,5,5))
+plex3_times <- factor(c(0,0,0,0,60,60,60,60,60,60))
+
+plex2_cond <- c('WT 0min','WT 0min','RAB7A 0min','RAB7A 0min','WT 5min','WT 5min','RAB7A 5min','RAB7A 5min','NPC1 5min','NPC1 5min')
+plex3_cond <- c('WT 0min','WT 0min','NPC1 0min','NPC1 0min','WT 60min','WT 60min','RAB7A 60min','RAB7A 60min','NPC1 60min','NPC1 60min')
+```
+
+## PCA Plots
+
+As an initial quality check, let's run PCA on our data. We can use `prcomp` to run pca, and `autoplot` to plot the result. Let's try making 2 pca plots, 1 for each 10plex, colored by condition. 
+
+```{r PCA}
+#PCA Plots
+
+```
+
+We should look at how our replicates are clustered. Does everything look good in both 10-plexes? 
+
+## Heatmaps
+
+Let's explore this more by looking at some heatmaps of our data. We can use the `heatmap` function to plot a heatmap. 
+
+```{r heatmap plex2}
+#Heatmap
+```
+```{r heatmap plex3}
+#Heatmap
+
+```
+## How should we resolve this issue?
+
+```{r Fix label swap}
+#Code to fix the label swap issue here
+```
+
+## Iner-10plex Batch Effects
+
+Now let's look at how our 2 ten-plexes compare to eachother. How strong is the 10-plex specific batch effect?
+
+```{r BatchClusters}
+#Batch effect between 10-plexes
+merged_phos <- phos_plex2[,c("Uniprot","Isoform",plex2_names)] %>% 
+  inner_join(
+    phos_plex3[,c("Uniprot","Isoform",plex3_names)], 
+    by = c("Uniprot", "Isoform")
+  )
+
+```
+
+
+## Phosphosite Overlap
+
+Our 2 10-plexes look very different, which isn't suprising. Let's see more generally how many sites we have in common between the datasets. 
+
+```{r Site Overlap}
+keyVec2 <- paste(phos_plex2$Uniprot,phos_plex2$Isoform, sep="_")
+keyVec3 <- paste(phos_plex3$Uniprot,phos_plex3$Isoform, sep="_")
+
+# Chart
+myCol <- brewer.pal(3, "Pastel2")
+ggVennDiagram(list(keyVec2, keyVec3))+scale_fill_distiller(palette = "RdBu")
+```
+Looks like we want to keep the analysis within each 10-plex. For now, let's focus on just the Wild Type so we don't have to worry about calculating fold changes in between 10-plexes. 
+
+## Quantile Normalization
+
+Let's perform quantile normalization. 
+
+First let's see how quantile normalization works.
+
+![From Zhao, Yaxing, Limsoon Wong, and Wilson Wen Bin Goh. "How to do quantile normalization correctly for gene expression data analyses." Scientific reports 10.1 (2020): 1-11.](images/quantNormFigure.png)
+
+```{r Normalization Example}
+#Quantile Normalization
+test_quant <- matrix(rnorm(24)*10, nrow = 8, ncol = 3, byrow=TRUE)
+test_quant
+normalize.quantiles(test_quant)
+```
+So what do we want to do for our dataset?
+
+```{r Normalization}
+#Normalize
+```
+
+## Calculate log2 Fold Change
+
+We can get fancy with calculating fold change:
+```{r fancy}
+#The fancy way
+calculateFoldChange <- function(phos_plex, plex_names) {
+  plex_data <- gather(phos_plex[,c("Uniprot","Isoform",plex_names)], "Sample","Abundance",-c("Uniprot","Isoform"))
+  plex_data$Abundance <- as.numeric(plex_data$Abundance)
+  plex_data$Condition <- apply(str_split_fixed(plex_data$Sample, "_", 3)[, c(1, 2)], 1, paste, collapse ="_")
+  plex_data$Time <- str_split_fixed(plex_data$Sample, "_", 3)[, 2]
+  plex_data$CLine <- str_split_fixed(plex_data$Sample, "_", 3)[, 1]
+  summ <- plex_data %>%
+    group_by(Uniprot, Isoform, Condition) %>%
+    summarize(abundance_mean = mean(Abundance))
+  summ$Time <- str_split_fixed(summ$Condition, "_", 2)[, 2]
+  summ$CLine <- str_split_fixed(summ$Condition, "_", 2)[, 1]
+
+  folds <- summ %>%
+    group_by(Uniprot, Isoform,CLine) %>%
+    summarize(fold_change = log2(abundance_mean[2]/abundance_mean[1])) %>%
+    spread(., CLine, fold_change)
+}
+```
+
+We're not going to get too far into what this function does.
+
+However, since for now we're only interested in WT data, let's do things more simply. We'll calculate fold changes 'manually'. 
+
+```{r log2foldchange}
+# Calculate log2FoldChange
+ 
+```
+
