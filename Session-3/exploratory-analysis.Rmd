@@ -71,7 +71,19 @@ As an initial quality check, let's run PCA on our data. We can use `prcomp` to r
 
 ```{r PCA}
 #PCA Plots
+plex2_num <- data.frame(t(phos_plex2[,plex2_names]))
+pca_res2 <- prcomp(plex2_num, scale = FALSE)
+plex2_num$cell.line <- plex2_celllines
+plex2_num$time <- plex2_times
+plex2_num$condition <- plex2_cond
+autoplot(pca_res2, data=plex2_num, colour = 'condition', size=3)
 
+plex3_num <- data.frame(t(phos_plex3[,plex3_names]))
+pca_res3 <- prcomp(plex3_num, scale = FALSE)
+plex3_num$cell.line <- plex3_celllines
+plex3_num$time <- plex3_times
+plex3_num$condition <- plex3_cond
+autoplot(pca_res3, data=plex3_num, colour = 'condition', size=3)
 ```
 
 We should look at how our replicates are clustered. Does everything look good in both 10-plexes? 
@@ -82,15 +94,21 @@ Let's explore this more by looking at some heatmaps of our data. We can use the 
 
 ```{r heatmap plex2}
 #Heatmap
+times_factor3 <- as.numeric(as.factor(plex3_times))
+colSide <- brewer.pal(3, "Set1")[times_factor3]
+heatmap(x=cor(phos_plex3[,plex3_names]), RowSideColors=colSide)
+
 ```
 ```{r heatmap plex3}
 #Heatmap
-
+plex3_cor <- cor(phos_plex3[,plex3_names])
+heatmap(plex3_cor, Colv = NA, Rowv = NA)
 ```
 ## How should we resolve this issue?
 
 ```{r Fix label swap}
 #Code to fix the label swap issue here
+
 ```
 
 ## Iner-10plex Batch Effects
@@ -104,6 +122,12 @@ merged_phos <- phos_plex2[,c("Uniprot","Isoform",plex2_names)] %>%
     phos_plex3[,c("Uniprot","Isoform",plex3_names)], 
     by = c("Uniprot", "Isoform")
   )
+condition <- c(1,1,2,2,3,3,4,4,5,5,1,1,6,6,7,7,8,8,9,9)
+plex <- c(1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2)
+timepoints <- c(1,1,1,1,2,2,2,2,2,2,1,1,1,1,3,3,3,3,3,3)
+rowSide <- brewer.pal(3, "Set1")[plex]
+colSide <- brewer.pal(3, "Set1")[timepoints]
+heatmap(x=cor(merged_phos[,-c(1,2)]), RowSideColors=rowSide, ColSideColors = colSide)
 
 ```
 
@@ -141,37 +165,3 @@ So what do we want to do for our dataset?
 ```{r Normalization}
 #Normalize
 ```
-
-## Calculate log2 Fold Change
-
-We can get fancy with calculating fold change:
-```{r fancy}
-#The fancy way
-calculateFoldChange <- function(phos_plex, plex_names) {
-  plex_data <- gather(phos_plex[,c("Uniprot","Isoform",plex_names)], "Sample","Abundance",-c("Uniprot","Isoform"))
-  plex_data$Abundance <- as.numeric(plex_data$Abundance)
-  plex_data$Condition <- apply(str_split_fixed(plex_data$Sample, "_", 3)[, c(1, 2)], 1, paste, collapse ="_")
-  plex_data$Time <- str_split_fixed(plex_data$Sample, "_", 3)[, 2]
-  plex_data$CLine <- str_split_fixed(plex_data$Sample, "_", 3)[, 1]
-  summ <- plex_data %>%
-    group_by(Uniprot, Isoform, Condition) %>%
-    summarize(abundance_mean = mean(Abundance))
-  summ$Time <- str_split_fixed(summ$Condition, "_", 2)[, 2]
-  summ$CLine <- str_split_fixed(summ$Condition, "_", 2)[, 1]
-
-  folds <- summ %>%
-    group_by(Uniprot, Isoform,CLine) %>%
-    summarize(fold_change = log2(abundance_mean[2]/abundance_mean[1])) %>%
-    spread(., CLine, fold_change)
-}
-```
-
-We're not going to get too far into what this function does.
-
-However, since for now we're only interested in WT data, let's do things more simply. We'll calculate fold changes 'manually'. 
-
-```{r log2foldchange}
-# Calculate log2FoldChange
- 
-```
-
