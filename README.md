@@ -24,8 +24,8 @@ All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm 
 | 2 | 10-06-22 | Intro to dpylr and ggplot <br/> NYTimes COVID data exploration and visualization (cont'd) | [link](Session-2) |
 | 3 | 10-20-22 | Exploratory QC analysis for phosphoproteomic data  | [link](Session-3) |
 | 4 | 11-03-22 | Parkinson’s Disease Digital Biomarker DREAM Challenge Exploration | [link](https://www.synapse.org/#!Synapse:syn8717496/wiki/422884) |
-| 5 | 11-17-22 | Using git and Github | TBA |
-| 6 | 12-01-22 | TBA | TBA |
+| 5 | 11-17-22 | Using git and Github | [link](https://github.com/HMS-Data-Club/github-activity) |
+| 6 | 12-01-22 | None - Research Cores Poster Session | TBA |
 | 7 | 12-15-22 | TBA | TBA |
 
 <br/>
