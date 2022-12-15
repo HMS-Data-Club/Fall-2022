@@ -14,6 +14,9 @@ You are a scientist working with a team studying cancer-associated fibroblasts.
 One of your collaborators, a computational researcher, has just completed a bulk RNA-seq analysis, and has sent you the script they wrote for the initial part of the analysis. 
 You want to show this analysis to two people, a data scientist on your team and the non-computational principle investigator of the research. 
 
+We have two files, `analysis.R` and `analysis.docx`, which provide the analysis code and a small write-up of the analysis. 
+However, we want to instead make a single integrated report we can send out. 
+
 In order to show the analysis, you decide to create a report based on the script. 
 However, you think that what is included in the report should probably be a bit different for your two audiences. 
 
@@ -36,6 +39,11 @@ This report goes through some of the RNA-Seq analysis in R experiment starting w
 - Conducting quality assessment of counts
 
 ## Part 1: Creating a report for a computational audience
+
+0. Open and run analysis.R
+
+  Let's make sure first that we have all the needed libraries install, we're in the correct working directory, and the analysis works. 
+  After pulling the updated `Fall-2022` repository or downloading and extracting the repository's `.zip` file, open `analysis.R` and run all code. 
 
 1. Create a new RMarkdown file
  
