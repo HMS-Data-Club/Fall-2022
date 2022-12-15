@@ -1,0 +1,10 @@
+Run,condition,Name,Replicate,Treated
+1_CTR_BC_2 ,CTR,CTR_1,1,N
+2_TGF_BC_4,TGF,TGF_1,1,Y
+3_IR_BC_5,IR,IR_1,1,Y
+4_CTR_BC_6,CTR,CTR_2,2,N
+5_TGF_BC_7,TGF,TGF_2,2,Y
+6_IR_BC_12,IR,IR_2,2,Y
+7_CTR_BC_13 ,ctr,CTR_3,3,N
+8_TGF_BC_14,tgf,TGF_3,3,Y
+9_IR_BC_15,ir,IR_3,3,Y
