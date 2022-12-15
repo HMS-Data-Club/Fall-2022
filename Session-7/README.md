@@ -37,8 +37,6 @@ This report goes through some of the RNA-Seq analysis in R experiment starting w
 
 ## Part 1: Creating a report for a computational audience
 
-### Converting our script to an RMarkdown file
-
 1. Create a new RMarkdown file
  
     Within R Studio, go to `File -> New File -> R Markdown`. 
@@ -82,4 +80,63 @@ This report goes through some of the RNA-Seq analysis in R experiment starting w
     Do we want a computational collaborator to be able to see our code? 
     What about warnings? 
 
+3. Bringing in the code
 
+ For now, let's just paste the entire `analysis.R` script into our report as a single code block:
+ 
+ ````
+ ```{r full_analysis}
+ library(DESeq2)
+ # ... rest of code here
+ ggbiplot::ggbiplot(vsd.prcp, scale = 0, var.axes = FALSE)
+ ```
+ ````
+4. Adding date and session info
+  
+  Given that we are sending this report to a computational audience, we want to make sure we include detailed information about our packages and when we ran this analysis, in case our data scientist collaborator wants to re-run the analysis. 
+  
+  To do this, add the following text and separate chunk at the bottom of the markdown report:
+  
+  ````
+  ## Wrap up
+
+  Date stamp and session information. 
+
+  ```{r date stamp}
+  # add date stamp
+  library(lubridate)
+  lubridate::stamp("Data updated December 31, 1979")(lubridate::now())
+  ```
+  ```{r session info}
+  # add session info
+  library(utils)
+  utils:::print.sessionInfo(sessionInfo()[-8]) 
+  ```
+  ````
+  
+5. [Draw the rest of the owl](https://knowyourmeme.com/memes/how-to-draw-an-owl)
+  
+ Now that we have our report setup, go though it and `analysis.docx`.
+ Luckily your collaborator included some comments in their code, but we'll want to incorporate text from the analysis write-up to provide more context. 
+ 
+ Consider how you to want to split up your code into meaningful chunks. 
+ Are there particular parts of the code where you would want to change the global settings you chose?
+ 
+ __Remember to periodicly try knitting your code report!__
+
+
+## Part 2: Creating a report for a non-computational audience
+
+We are now going to create another report, this time for a non-computational audience. 
+
+This collaborator, the PI of the project, isn't as interested in experimental details or reproducing the experiment themselves. 
+They simply want to know what you did and what the results are. 
+
+Create a new R Markdown file called `biological_report`, copying your comptuational report. 
+
+Consider the settings at the top of the file, is there anything we want to change?
+Go through your existing text and output, what might we want to add or remove for this report?
+
+Try adding at least 1 line where you use [inline code](https://bookdown.org/yihui/rmarkdown-cookbook/r-code.html) to create a dynamic sentence based on the data, such as generating a sentence that says:
+
+> Our dataset includes counts of `[number of genes]` genes for `[number of samples]` samples. 
