@@ -111,14 +111,5 @@ matrix.PCA <- t(transformed.count.matrix[diff.gene, ])
 vsd.prcp <- prcomp(matrix.PCA)
 summary(vsd.prcp)
 
-
 autoplot(vsd.prcp)
 ggbiplot::ggbiplot(vsd.prcp, scale = 0, var.axes = FALSE)
-
-# Wrapup
-
-# add date stamp
-lubridate::stamp("Data updated December 31, 1979")(lubridate::now())
-
-# add session info
-utils:::print.sessionInfo(sessionInfo()[-8]) 
