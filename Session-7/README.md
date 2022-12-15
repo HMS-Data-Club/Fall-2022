@@ -131,6 +131,10 @@ This report goes through some of the RNA-Seq analysis in R experiment starting w
    knitr::kable(sampleinfo)
    ```
    Would allow you to preview your counts and sample information tables after you load them. 
+   
+   We also currently try PCA in two different ways, using `PCAPlot` and using `prcomp` with only the 500 top genes. 
+   One nice way to show these kinds of multiple but parallel options is to [use tabs in the report](https://bookdown.org/yihui/rmarkdown-cookbook/html-tabs.html). 
+
 
    __Remember to periodicly try knitting your code report!__
 
