@@ -1,38 +1,85 @@
-# Data Analysis Club (Fall 2022)
+# R Markdown and Quarto with RNA-seq
 
-This repository contains the materials/resources for the [Data Analysis Club (Fall 2022)](https://computationalbiomed.hms.harvard.edu/education/data-analysis-club/). 
+This week we're going to explore RMarkdown and its newer decendant Quarto. 
 
-<br/>
+To get started, a nice introduction to RMarkdown can be found [here](https://rmarkdown.rstudio.com/articles_intro.html). 
 
-## About Data Club
+A complete reference and guide can be gound [here](https://bookdown.org/yihui/rmarkdown/output-formats.html).
 
-The Data Analysis Club is a community hosted by the Center for Computational Biomedicine with support from the Curriculum Fellows. In Fall 2022, we will be focusing on hands-on data analysis using R. Each session, either the instructor(s) or another group member will introduce a data set and a research question. As a group, we will work through the workflow to show how we can use data to answer a question, test a hypothesis, or reproduce a result. We will also have time each session to troubleshoot projects and share computational expertise. Members will have a say in the specific topics and data techniques chosen for each session, but expect topics such as:
+Additionally, [this PDF](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf) is a useful quick reference.
 
-* Project and workflow management
-* Data visualization and exploratory analysis
-* Analyzing high-throughput data
+### Scenario
 
-All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm – 5:30pm.
+You are a scientist working with a team studying cancer-associated fibroblasts. 
+One of your collaborators, a computational researcher, has just completed a bulk RNA-seq analysis, and has sent you the script they wrote for the initial part of the analysis. 
+You want to show this analysis to two people, a data scientist on your team and the non-computational principle investigator of the research. 
 
-<br/>
+In order to show the analysis, you decide to create a report based on the script. 
+However, you think that what is included in the report should probably be a bit different for your two audiences. 
 
-## Session Materials
+Today, we're going to go through the steps of:
 
-|Session| Date     | Topic | Directory     |
-|:-----:|:--------:|:------|:-------------:|
-| 1 | 09-22-22 | NYTimes COVID data exploration and visualization | [link](Session-1) |
-| 2 | 10-06-22 | Intro to dpylr and ggplot <br/> NYTimes COVID data exploration and visualization (cont'd) | [link](Session-2) |
-| 3 | 10-20-22 | Exploratory QC analysis for phosphoproteomic data  | [link](Session-3) |
-| 4 | 11-03-22 | Parkinson’s Disease Digital Biomarker DREAM Challenge Exploration | [link](https://www.synapse.org/#!Synapse:syn8717496/wiki/422884) |
-| 5 | 11-17-22 | Using git and Github | [link](https://github.com/HMS-Data-Club/github-activity) |
-| 6 | 12-01-22 | None - Research Cores Poster Session | NA |
-| 7 | 12-15-22 | R Markdown and Quarto | TBA |
+1. Converting R script to an RMarkdown file. 
+2. Creating a RMarkdown report for our computational collaborator. 
+3. Creating a RMarkdown report for our non-computational collaborator. 
 
-<br/>
+### Experimental Summary
 
-## Resources
+The paper this scenario is based on can be found here: [Induction of fibroblast senescence generates a non-fibrogenic myofibroblast phenotype that differentially impacts on cancer prognosis.](http://europepmc.org/article/MED/27992856)
 
-For guide and policies related to Data Club, refer to the [Resource Repository](https://github.com/HMS-Data-Club/Resources).
+The goal of this experiment was to compared the transcriptomics of myofibroblasts and senescent fibroblasts. To achieve this goal, RNA-seq experiment was carried out on human fetal foreskin fibroblasts 2 (HFFF2) treated with 2ng/ml TGF-beta-1 to induce myofibroblast differentiation or 10Gy gamma irradiation to induce senescence. RNA was isolated 7 days upon this treatments.
 
+This report goes through some of the RNA-Seq analysis in R experiment starting with a read count matrix (processed using `salmon`). This report includes:
+
+- Exploring count data after importing them into R and 
+- Normalizing RNA-seq counts
+- Conducting quality assessment of counts
+
+## Part 1: Creating a report for a computational audience
+
+### Converting our script to an RMarkdown file
+
+1. Create a new RMarkdown file
+ 
+    Within R Studio, go to `File -> New File -> R Markdown`. 
+    Leave `document` selected in the left sidebar of the pop-up window and `html` as the output format.
+    Name the file `computational_report` and click `ok`.
+  
+2. Update header and setup block
+
+    Your file should start with something like this right now: 
+
+    ````
+    ---
+    title: "computational_report"
+    output: html_document
+    date: "2022-12-15"
+    ---
+
+    ```{r setup, include=FALSE}
+    knitr::opts_chunk$set(echo = TRUE)
+    ```
+    ````
+
+    Here, we have the header in [YAML format](https://zsmith27.github.io/rmarkdown_crash-course/lesson-4-yaml-headers.html) followed by the `setup` chunk. 
+
+    We can now consider our global options. 
+    While we want to output a `html_document` it can be nice to add other settings by including `html_notebook` in the output setting of the header. 
+    We can then include options like adding a table of contents with `toc:true` and adding a theme. 
+
+    We like the simple `cerulean` theme, but you can look at a list of other themes [here](https://www.datadreaming.org/post/r-markdown-theme-gallery/). 
+
+    Looking at the reference and guide, what are some settings we might want globally for a report aimed at a computational audience?
+
+    Settings to think about inside `knitr::opts_chunk$set` in the `setup` chunk are:
+
+    - include = FALSE prevents code and results from appearing in the finished file. R Markdown still runs the code in the chunk, and the results can be used by other chunks.
+    - echo = FALSE prevents code, but not the results from appearing in the finished file. This is a useful way to embed figures.
+    - message = FALSE prevents messages that are generated by code from appearing in the finished file.
+    - warning = FALSE prevents warnings that are generated by code from appearing in the finished.
+    fig.cap = "..." adds a caption to graphical results.
+
+    Do we want a computational collaborator to be able to see our code? 
+    What about warnings? 
 
 
