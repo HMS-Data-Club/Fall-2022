@@ -26,7 +26,7 @@ All sessions will take place __in person__ in TMEC 128 on Thursdays from 4:00pm 
 | 4 | 11-03-22 | Parkinson’s Disease Digital Biomarker DREAM Challenge Exploration | [link](https://www.synapse.org/#!Synapse:syn8717496/wiki/422884) |
 | 5 | 11-17-22 | Using git and Github | [link](https://github.com/HMS-Data-Club/github-activity) |
 | 6 | 12-01-22 | None - Research Cores Poster Session | NA |
-| 7 | 12-15-22 | R Markdown and Quarto | TBA |
+| 7 | 12-15-22 | R Markdown and Quarto | [link](https://github.com/HMS-Data-Club/Fall-2022/tree/main/Session-7) |
 
 <br/>
 
